@@ -1,0 +1,412 @@
+---
+title: "Tornado first regression"
+author: "Helen Greatrex"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: yes
+    number_sections: yes
+    theme: lumen
+    df_print: paged
+  html_notebook:
+    toc: true
+    toc_float: yes
+    number_sections: yes
+    theme: lumen   
+---
+
+# Headings
+
+## sub-headings
+
+### sub-sub-heading (as long as there is a SPACE after the #)
+
+we have space for text. Click insert (top right, then R)
+
+```{r, message=FALSE, warning=FALSE}
+# load library
+# if a library doesn't exist, then to download, go to the packages menu (next to help) and click install
+
+# Upon downloading the .rmd file, I attempted to run this first code chunk and found that many of the libraries weren't installed.
+#I needed to install each library before downloading it via this code
+
+rm(list=ls())
+library(sp)
+library(sf)
+library(raster)
+library(tidycensus)
+library(tidyverse)
+library(plotly)
+library(olsrr)
+library(tmap)
+library(RColorBrewer)
+library("lubridate")
+library(dplyr)
+```
+
+Write some more notes. Click preview to see a doc of the answer
+Look at Rstudio markdown tutorial for more cool stuff
+
+```{r}
+# dot . means current folder - and you don't need a file extension
+
+# this code chunk uses "st_read" to read in the features from the initial tornado point shapefile
+# the table/spreadsheet of data is saved to a variable "T_data"
+T_data <- st_read(dsn="./1950-2019-torn-initpoint",
+                  layer="1950-2019-torn-initpoint")
+
+```
+
+To see the data, you can click on its name, or make a code chunk and type View(T_data)
+
+We can access individual columns using the $ symbol
+
+```{r}
+# columnn names, by the way, in a code chunk, the # means don't run this line
+
+# this command displays all of the field names within the shapefile we read in with the previous code chunk
+# the other way to think about it is that it's the column names in your spreadsheet.
+names(T_data)
+```
+
+```{r}
+
+#summary gives details of each column of data within the shapefile
+#some columns, date and time, are characters according to R
+#we will need to convert these to a readable number in order to work with them and performa analysis
+
+#summary(T_data)
+```
+
+```{r}
+# print the 1st 6  values
+#the head command displays the first six values from the selected column
+#in this case we see the first 6 dates in the "date" columns
+#R is interpreting these as characters, rather than a date
+#we will need to convert them into something that R understands is a date
+
+#head(T_data$date)
+```
+
+```{r}
+
+#we use the head command here to give us the first 6 values for the entire data set
+#additional information is provided around the metadata including geometry type, etc.
+
+head(T_data)
+```
+
+
+
+```{r}
+# we need to find the format
+# we look at the help file for strptime (this is not obvious)
+#?strptime
+```
+
+
+```{r}
+# make the date
+# set the values in the date column to the variable "T_data$date"
+# as.Date command converts the character data in the column to represent calendar dates
+# calendar date is in the format year, month, date
+
+T_data$date <- as.Date(T_data$date, format="%Y-%m-%d")
+```
+
+
+```{r}
+#using the summary function again, we display all the data in the shapefile
+#now the date column is displaying calendar dates rather than a character
+#summary(T_data)
+```
+
+
+```{r}
+# Let's cheat
+head(T_data$time)
+
+# strsplit splits each character time string into a "list" (advent calendar) of the hour, minutes and seconds for each row 
+Fulltimes <- strsplit(T_data$time,":")
+
+
+# Now we use the lapply function to make a new list with just the first one
+# and we turn it back into just a normal row of numbers
+T_data$hours   <-as.numeric(unlist(lapply(Fulltimes, "[",1)))
+T_data$minutes <-as.numeric(unlist(lapply(Fulltimes, "[",2)))
+T_data$seconds <-as.numeric(unlist(lapply(Fulltimes, "[",3)))
+T_data$DecimalHour <- T_data$hours + (T_data$minutes/60)
+
+```
+
+
+
+
+```{r}
+
+#using the summary function again, we display all the data in the shapefile
+#now we see our new column "datetime"
+#however, this is a character again
+#we will need to convert this into something meaningful to analyze
+
+#summary(T_data)
+
+```
+
+
+
+```{r}
+# This is the number of tornados at each magnitude and each hour
+table(T_data$hour,T_data$mag)
+```
+
+
+
+
+
+```{r}
+## OLD BUT USEFUL CODE
+
+#using the summary function again, we display all the data in the shapefile
+#now we see our new column "datetime"
+#however, this is a character again
+#we will need to convert this into something meaningful to analyze
+
+#summary(T_data)
+
+# I need to extract the hours and minutes from the $datetime column
+#I found the code below which I think will help to get to the point where I will have the time value needed
+#However, I am unsure how to match up what I see in the code below to our data
+
+#I ran the code and it produces results but again, my confusion lies in how to translate the example code into something that works with #our data
+
+#Time <- factor("08:01:01")
+
+# parese date
+#a <- hms(as.character(Time))
+
+# get hours
+#hour(a)
+
+# get minutes
+#minute(a)
+
+# so overall - nice work
+#a <- hms(T_data$time)
+#T_data$hour <- hour(a)
+#T_data$minutes <- minute(a)
+
+```
+
+
+# Exploratory analysis
+
+## Bad magnitudes
+
+We are now going to make some plots.  First, let's look at the time of day vs the magnitude, where the colour shows the number of tornados at that level
+
+
+
+
+```{r}
+# The tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
+# ignore time for now
+# plot(T_data$DecimalHour,T_data$mag,cex=.2)
+# ?par for more plotting parameters
+# https://www.r-graph-gallery.com/
+
+# Fancy GGversion of same plot
+# Bin size control + color palette
+ggplot(T_data, aes(x=DecimalHour, y=mag) ) +
+  geom_bin2d(bins = 70) +
+  scale_fill_continuous(type = "viridis") +
+  theme_bw()
+```
+
+### Remove missing tornados
+
+Some values in the magnitude column were -9.  according to NOAA these were undetermined magnitude tornadoes, which we will remove from the data, as directed by https://www.spc.noaa.gov/wcm/data/SPC_severe_database_description.pdf
+
+
+```{r}
+
+# mag < 0 has been set to missing
+T_data$mag[T_data$mag < 0 ] <- NA
+```
+
+So now, remake the plots
+
+```{r}
+# Bin size control + color palette
+ggplot(T_data, aes(x=DecimalHour, y=mag) ) +
+  geom_bin2d(bins = 70) +
+  scale_fill_continuous(type = "viridis") +
+  theme_bw()
+```
+
+
+# More exploratory analysis
+
+So now,fatalities by time of day
+
+```{r}
+# Bin size control + color palette
+ggplot(T_data, aes(x=DecimalHour, y=fat) ) +
+  geom_bin2d(bins = 70) +
+  scale_fill_continuous(type = "viridis") +
+  theme_bw()
+```
+
+### REMEMBER WE WANT TO MAKE LIGHT LEVELS
+
+
+# What about the intersection between time of day and magnitude
+
+Make a new table, with one row for each hour, then calculate the summary statistics.  By the way the dplyr::summarise function is neater but helen doesn't know it off by heart.
+
+```{r}
+TimeOfDay <- split(T_data,as.factor(T_data$hours))
+
+TimeOfDaySummary <- data.frame(TimeOfDay        = sapply(split(T_data$hours,as.factor(T_data$hours)),"[",1),
+                               NumberOfTornados = sapply(TimeOfDay,nrow),
+                               TotalFatalities  = sapply(split(T_data$fat,as.factor(T_data$hours)),sum,na.rm=TRUE),
+                               AvFatalities     = sapply(split(T_data$fat,as.factor(T_data$hours)),mean,na.rm=TRUE),
+                               AvMag            = sapply(split(T_data$mag,as.factor(T_data$hours)),mean,na.rm=TRUE))
+
+## In words, make a wish list of what you would like to see by hour
+
+TimeOfDaySummary
+```
+
+
+```{r}
+# The ~ means "is a function of" e.g. y variable goes first
+
+plot(TimeOfDaySummary$AvFatalities ~  TimeOfDaySummary$TimeOfDay,
+     ylab="Average number of fatalities in that hour slot",
+     xlab="Time of day",
+     type="o")
+```
+
+## Now let's split into different magnitudes
+
+### CHOOSE A MAGNITUDE
+
+```{r}
+#  YOU CHOOSE THE MAGNITUDE HERE
+
+magnitude <- 3
+
+# filter that mag
+T_data_Mag <- filter(T_data,mag==magnitude)
+
+# Split the data
+TimeOfDay_Mag <- split(T_data_Mag,as.factor(T_data_Mag$hours))
+
+# split by time of day as a summary table
+TimeOfDaySummary_Mag <- data.frame(TimeOfDay   = sapply(split(T_data_Mag$hours,as.factor(T_data_Mag$hours)),"[",1),
+                               NumberOfTornados = sapply(TimeOfDay_Mag,nrow),
+                               TotalFatalities  = sapply(split(T_data_Mag$fat,as.factor(T_data_Mag$hours)),sum,na.rm=TRUE),
+                               AvFatalities     = sapply(split(T_data_Mag$fat,as.factor(T_data_Mag$hours)),mean,na.rm=TRUE),
+                               AvMag            = sapply(split(T_data_Mag$mag,as.factor(T_data_Mag$hours)),mean,na.rm=TRUE))
+
+
+plot(TimeOfDaySummary_Mag$TotalFatalities ~  TimeOfDaySummary_Mag$TimeOfDay,
+     ylab=paste("Total fatalities at Mag",magnitude),type="o")
+
+plot(TimeOfDaySummary_Mag$AvFatalities ~  TimeOfDaySummary_Mag$TimeOfDay,
+     ylab=paste("Average fatalities at Mag",magnitude),type="o")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TO DO: Look at the existing papers on time of day, did they scale by per tornado?  or something else?
+
+Add in extra mags and have a look,
+Start playing with other columns or making regressions..  
+In words, now you have this, what's interesting, THINK SPATIALLY 
+Maybe do it as a powerpoint
+
+
+
+
+
+
+
+
+```{r}
+# the tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
+# ignore time for now
+plot(T_data$fat ~ T_data$mag,cex=.5)
+```
+
+
+this tutorial will be useful in honing code
+https://hgreatrex.github.io/lab-7.html#tutorial-2-regression
+
+
+```{r}
+#x,y
+
+p <-  T_data %>%                  
+  ggplot( aes(mag,fat,col= datetime,label=om)) +
+  geom_point() +
+  theme_classic()+
+  scale_color_gradient(low="blue", high="red")
+
+ggplotly(p)
+```
+
+
+to do a regression
+
+```{r}
+firstmodel <- lm(fat ~ mag, data=T_data)
+ols_regress(firstmodel)
+
+firstmodel
+```
+
+fatalities = mag*0.73 - 0.9098
+
+
+```{r}
+plot(T_data$fat ~ T_data$mag)
+abline(firstmodel)
+```
+
+```{r}
+T_data$FirstModel.Residuals <- residuals(firstmodel)
+
+
+
+
+# subset the illinois census data with the Chicago city limits
+tm_shape(T_data, unit = "mi") + 
+           tm_dots(col = "FirstModel.Residuals", style = "quantile",
+                       palette = "-RdBu", border.alpha = 0, 
+                       title = "First model residuals")#+
+ #   tm_shape(Chicago.city) +
+  #         tm_borders()+
+    tm_layout(legend.outside = TRUE) 
+```
+

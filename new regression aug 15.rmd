@@ -1,0 +1,201 @@
+---
+title: "Tornado first regression"
+author: "Helen Greatrex"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: yes
+    number_sections: yes
+    theme: lumen
+    df_print: paged
+  html_notebook:
+    toc: true
+    toc_float: yes
+    number_sections: yes
+    theme: lumen   
+---
+
+# Headings
+
+## sub-headings
+
+### sub-sub-heading (as long as there is a SPACE after the #)
+
+we have space for text. Click insert (top right, then R)
+
+```{r, message=FALSE, warning=FALSE}
+# load library
+# if a library doesn't exist, then to download, go to the packages menu (next to help) and click install
+rm(list=ls())
+library(sp)
+library(sf)
+library(raster)
+library(tidycensus)
+library(tidyverse)
+library(plotly)
+library(olsrr)
+library(tmap)
+library(RColorBrewer)
+library("lubridate")
+```
+
+Write some more notes. Click preview to see a doc of the answer
+Look at Rstudio markdown tutorial for more cool stuff
+
+```{r}
+# dot . means current folder - and you don't need a file extension
+T_data <- st_read(dsn="./1950-2019-torn-initpoint",
+                  layer="1950-2019-torn-initpoint")
+
+```
+
+To see the data, you can click on its name, or make a code chunk and type View(T_data)
+
+We can access individual columns using the $ symbol
+
+```{r}
+# columnn names, by the way, in a code chunk, the # means don't run this line
+names(T_data)
+```
+
+```{r}
+summary(T_data)
+```
+```{r}
+# print the 1st 6  values
+head(T_data$date)
+```
+
+```{r}
+head(T_data)
+```
+
+
+
+```{r}
+# we need to find the format
+# we look at the help file for strptime (this is not obvious)
+#?strptime
+```
+
+
+```{r}
+# make the date
+T_data$date <- as.Date(T_data$date, format="%Y-%m-%d")
+```
+
+```{r}
+summary(T_data)
+
+```
+
+
+```{r}
+#  make a new column with date and time. paste always makes something a character
+T_data$datetime <- paste(T_data$date,T_data$time)
+```
+
+
+```{r}
+# and make this a timestamp
+T_data$datetime <- as.POSIXlt(T_data$datetime )
+
+```
+
+
+
+```{r}
+T_data$time <- paste("2002-07-15",T_data$time)
+T_data$time <- as.POSIXlt(T_data$time )[[1]]
+
+```
+
+
+
+```{r}
+# the tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
+# ignore time for now
+plot(T_data$time,T_data$mag,cex=.2)
+```
+
+# remove missing data
+
+mag < 0 has been set to NA, as directed by https://www.spc.noaa.gov/wcm/data/SPC_severe_database_description.pdf
+
+
+```{r}
+T_data$mag[T_data$mag < 0 ] <- NA
+```
+
+
+
+```{r}
+# the tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
+# ignore time for now
+plot(T_data$time,T_data$fat,cex=.2)
+```
+
+TO DO: Look at the exisitng papers on time of day, did they scale by per tornado?  or something else?
+
+
+
+
+
+```{r}
+# the tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
+# ignore time for now
+plot(T_data$fat ~ T_data$mag,cex=.5)
+```
+
+
+this tutorial will be useful in honing code
+https://hgreatrex.github.io/lab-7.html#tutorial-2-regression
+
+
+```{r}
+#x,y
+
+p <-  T_data %>%                  
+  ggplot( aes(mag,fat,col= time,label=om)) +
+  geom_point() +
+  theme_classic()+
+  scale_color_gradient(low="blue", high="red")
+
+ggplotly(p)
+```
+
+
+to do a regression
+
+```{r}
+firstmodel <- lm(fat ~ mag, data=T_data)
+ols_regress(firstmodel)
+
+firstmodel
+```
+
+fatalities = mag*0.73 - 0.9098
+
+
+```{r}
+plot(T_data$fat ~ T_data$mag)
+abline(firstmodel)
+```
+
+```{r}
+T_data$FirstModel.Residuals <- residuals(firstmodel)
+
+
+
+
+# subset the illinois census data with the Chicago city limits
+tm_shape(T_data, unit = "mi") + 
+           tm_dots(col = "FirstModel.Residuals", style = "quantile",
+                       palette = "-RdBu", border.alpha = 0, 
+                       title = "First model residuals")#+
+ #   tm_shape(Chicago.city) +
+  #         tm_borders()+
+    tm_layout(legend.outside = TRUE) 
+```
+
