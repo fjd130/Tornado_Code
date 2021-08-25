@@ -1,0 +1,6 @@
+"0","```r
+firstmodel <- lm(fat ~ mag, data=T_data)
+ols_regress(firstmodel)
+
+firstmodel
+```"

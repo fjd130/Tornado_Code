@@ -1,0 +1,10 @@
+"0","```r
+
+#using the summary function again, we display all the data in the shapefile
+#now we see our new column \"datetime\"
+#however, this is a character again
+#we will need to convert this into something meaningful to analyze
+
+#summary(T_data)
+
+```"

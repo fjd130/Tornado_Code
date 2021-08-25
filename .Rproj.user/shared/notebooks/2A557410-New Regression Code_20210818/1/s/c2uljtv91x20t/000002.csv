@@ -1,0 +1,13 @@
+"0","```r
+#x,y
+
+p <-  T_data %>%                  
+  ggplot( aes(mag,fat,col= datetime,label=om)) +
+  geom_point() +
+  theme_classic()+
+  scale_color_gradient(low=\"blue\", high=\"red\")
+
+ggplotly(p)
+```"
+"1","Error in FUN(X[[i]], ...) : object 'datetime' not found
+"

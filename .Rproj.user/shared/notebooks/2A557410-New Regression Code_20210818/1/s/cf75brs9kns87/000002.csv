@@ -1,0 +1,4 @@
+"0","```r
+plot(T_data$fat ~ T_data$mag)
+abline(firstmodel)
+```"

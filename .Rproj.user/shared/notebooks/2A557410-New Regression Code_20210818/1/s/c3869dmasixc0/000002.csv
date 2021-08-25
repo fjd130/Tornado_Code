@@ -1,0 +1,15 @@
+"0","```r
+T_data$FirstModel.Residuals <- residuals(firstmodel)
+
+
+
+
+# subset the illinois census data with the Chicago city limits
+tm_shape(T_data, unit = \"mi\") + 
+           tm_dots(col = \"FirstModel.Residuals\", style = \"quantile\",
+                       palette = \"-RdBu\", border.alpha = 0, 
+                       title = \"First model residuals\")#+
+ #   tm_shape(Chicago.city) +
+  #         tm_borders()+
+    tm_layout(legend.outside = TRUE) 
+```"

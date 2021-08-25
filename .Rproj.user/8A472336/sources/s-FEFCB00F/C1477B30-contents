@@ -43,6 +43,7 @@ library(tmap)
 library(RColorBrewer)
 library("lubridate")
 library(dplyr)
+library(tmap)
 ```
 
 Write some more notes. Click preview to see a doc of the answer
@@ -58,13 +59,20 @@ T_data <- st_read(dsn="./1950-2019-torn-initpoint",
 
 ```
 
+```{r}
+plot(st_geometry(T_data),pch=16,cex=.2)
+```
+
+
+
 To see the data, you can click on its name, or make a code chunk and type View(T_data)
 
 We can access individual columns using the $ symbol
 
 ```{r}
 # columnn names, by the way, in a code chunk, the # means don't run this line
-#this command displays all of the field names within the shapefile we read in with the previous code chunk
+
+# this command displays all of the field names within the shapefile we read in with the previous code chunk
 # the other way to think about it is that it's the column names in your spreadsheet.
 names(T_data)
 ```
@@ -75,7 +83,7 @@ names(T_data)
 #some columns, date and time, are characters according to R
 #we will need to convert these to a readable number in order to work with them and performa analysis
 
-summary(T_data)
+#summary(T_data)
 ```
 
 ```{r}
@@ -85,7 +93,7 @@ summary(T_data)
 #R is interpreting these as characters, rather than a date
 #we will need to convert them into something that R understands is a date
 
-head(T_data$date)
+#head(T_data$date)
 ```
 
 ```{r}
@@ -108,8 +116,8 @@ head(T_data)
 ```{r}
 # make the date
 # set the values in the date column to the variable "T_data$date"
-#as.Date command converts the character data in the column to represent calendar dates
-#calendar date is in the format year, month, date
+# as.Date command converts the character data in the column to represent calendar dates
+# calendar date is in the format year, month, date
 
 T_data$date <- as.Date(T_data$date, format="%Y-%m-%d")
 ```
@@ -118,9 +126,7 @@ T_data$date <- as.Date(T_data$date, format="%Y-%m-%d")
 ```{r}
 #using the summary function again, we display all the data in the shapefile
 #now the date column is displaying calendar dates rather than a character
-
-summary(T_data)
-
+#summary(T_data)
 ```
 
 
@@ -151,7 +157,7 @@ T_data$DecimalHour <- T_data$hours + (T_data$minutes/60)
 #however, this is a character again
 #we will need to convert this into something meaningful to analyze
 
-summary(T_data)
+#summary(T_data)
 
 ```
 
@@ -167,34 +173,31 @@ table(T_data$hour,T_data$mag)
 
 
 ```{r}
+## OLD BUT USEFUL CODE
+
 #using the summary function again, we display all the data in the shapefile
 #now we see our new column "datetime"
 #however, this is a character again
 #we will need to convert this into something meaningful to analyze
 
-summary(T_data)
+#summary(T_data)
 
-```
-
-
-
-```{r}
 # I need to extract the hours and minutes from the $datetime column
 #I found the code below which I think will help to get to the point where I will have the time value needed
 #However, I am unsure how to match up what I see in the code below to our data
 
 #I ran the code and it produces results but again, my confusion lies in how to translate the example code into something that works with #our data
 
-Time <- factor("08:01:01")
+#Time <- factor("08:01:01")
 
 # parese date
-a <- hms(as.character(Time))
+#a <- hms(as.character(Time))
 
 # get hours
-hour(a)
+#hour(a)
 
 # get minutes
-minute(a)
+#minute(a)
 
 # so overall - nice work
 #a <- hms(T_data$time)
@@ -204,16 +207,23 @@ minute(a)
 ```
 
 
-```{r}
-# the tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
-# ignore time for now
-plot(T_data$DecimalHour,T_data$mag,cex=.2)
+# Exploratory analysis
 
+## Bad magnitudes
+
+We are now going to make some plots.  First, let's look at the time of day vs the magnitude, where the colour shows the number of tornados at that level
+
+
+
+
+```{r}
+# The tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
+# ignore time for now
+# plot(T_data$DecimalHour,T_data$mag,cex=.2)
 # ?par for more plotting parameters
 # https://www.r-graph-gallery.com/
-```
 
-```{r}
+# Fancy GGversion of same plot
 # Bin size control + color palette
 ggplot(T_data, aes(x=DecimalHour, y=mag) ) +
   geom_bin2d(bins = 70) +
@@ -221,19 +231,18 @@ ggplot(T_data, aes(x=DecimalHour, y=mag) ) +
   theme_bw()
 ```
 
+### Remove missing tornados
 
-# remove missing data
-
-mag < 0 has been set to NA, as directed by https://www.spc.noaa.gov/wcm/data/SPC_severe_database_description.pdf
+Some values in the magnitude column were -9.  according to NOAA these were undetermined magnitude tornadoes, which we will remove from the data, as directed by https://www.spc.noaa.gov/wcm/data/SPC_severe_database_description.pdf
 
 
 ```{r}
 
-#some values in the magnitude column were -9.  according to NOAA these were undetermined magnitude tornadoes, which we will remove from the data
-
+# mag < 0 has been set to missing
 T_data$mag[T_data$mag < 0 ] <- NA
 ```
 
+So now, remake the plots
 
 ```{r}
 # Bin size control + color palette
@@ -243,6 +252,10 @@ ggplot(T_data, aes(x=DecimalHour, y=mag) ) +
   theme_bw()
 ```
 
+
+# More exploratory analysis
+
+So now,fatalities by time of day
 
 ```{r}
 # Bin size control + color palette
@@ -252,82 +265,119 @@ ggplot(T_data, aes(x=DecimalHour, y=fat) ) +
   theme_bw()
 ```
 
+### REMEMBER WE WANT TO MAKE LIGHT LEVELS
+
+
+# What about the intersection between time of day and magnitude
+
+Make a new table, with one row for each hour, then calculate the summary statistics.  By the way the dplyr::summarise function is neater but helen doesn't know it off by heart.
+
 ```{r}
 TimeOfDay <- split(T_data,as.factor(T_data$hours))
 
-TimeOfDaySummary <- data.frame(TimeOfDay= unlist(lapply(split(T_data$hours,as.factor(T_data$hours)),"[",1)),
-                               NumberOfTornados = unlist(lapply(TimeOfDay,nrow)),
-                               TotalFatalities = unlist(lapply(split(T_data$fat,as.factor(T_data$hours)),sum,na.rm=TRUE)),
-                               AvMag = unlist(lapply(split(T_data$mag,as.factor(T_data$hours)),mean,na.rm=TRUE)))
+TimeOfDaySummary <- data.frame(TimeOfDay        = sapply(split(T_data$hours,as.factor(T_data$hours)),"[",1),
+                               NumberOfTornados = sapply(TimeOfDay,nrow),
+                               TotalFatalities  = sapply(split(T_data$fat,as.factor(T_data$hours)),sum,na.rm=TRUE),
+                               AvFatalities     = sapply(split(T_data$fat,as.factor(T_data$hours)),mean,na.rm=TRUE),
+                               AvMag            = sapply(split(T_data$mag,as.factor(T_data$hours)),mean,na.rm=TRUE))
 
-  
-  
-
-TimeOfDaySummary$AvFatPerTornado  <- TimeOfDaySummary$TotalFatalities / TimeOfDaySummary$NumberOfTornados
+## In words, make a wish list of what you would like to see by hour
 
 TimeOfDaySummary
 ```
 
-
 ```{r}
-plot(TimeOfDaySummary$AvFatPerTornado ~  TimeOfDaySummary$TimeOfDay,type="o")
+#split by year
+ByYear <- split(T_data,as.factor(T_data$yr))
+
+ByYearSummary <- data.frame(Year        = sapply(split(T_data$yr,as.factor(T_data$yr)),"[",1),
+                               NumberOfTornados = sapply(ByYear,nrow),
+                               TotalFatalities  = sapply(split(T_data$fat,as.factor(T_data$yr)),sum,na.rm=TRUE),
+                               AvFatalities     = sapply(split(T_data$fat,as.factor(T_data$yr)),mean,na.rm=TRUE),
+                               AvMag            = sapply(split(T_data$mag,as.factor(T_data$yr)),mean,na.rm=TRUE))
+
+## In words, make a wish list of what you would like to see by hour
+
+ByYearSummary
 ```
 
 ```{r}
-
-T_data_Mag0 <- filter(T_data,mag==0)
-
-TimeOfDay_Mag0 <- split(T_data_Mag0,as.factor(T_data_Mag0$hours))
-
-TimeOfDaySummary_Mag0 <- data.frame(TimeOfDay        = unlist(lapply(split(T_data_Mag0$hours,as.factor(T_data_Mag0$hours)),"[",1)),
-                               NumberOfTornados = unlist(lapply(TimeOfDay_Mag0,nrow)),
-                               TotalFatalities  = unlist(lapply(split(T_data_Mag0$fat,as.factor(T_data_Mag0$hours)),sum,na.rm=TRUE)),
-                               AvMag            = unlist(lapply(split(T_data_Mag0$mag,as.factor(T_data_Mag0$hours)),mean,na.rm=TRUE)))
-
-
-
-TimeOfDaySummary_Mag0$AvFatPerTornado  <- TimeOfDaySummary_Mag0$TotalFatalities / TimeOfDaySummary_Mag0$NumberOfTornados
-
-plot(TimeOfDaySummary_Mag0$TotalFatalities ~  TimeOfDaySummary_Mag0$TimeOfDay,type="o")
-
+summary()
 ```
 
 ```{r}
-# MAG 4
-## double equals
-T_data_Mag4 <- filter(T_data,mag == 4)
-
-TimeOfDay_Mag4 <- split(T_data_Mag4,as.factor(T_data_Mag4$hours))
-
-TimeOfDaySummary_Mag4 <- data.frame(TimeOfDay        = unlist(lapply(split(T_data_Mag4$hours,as.factor(T_data_Mag4$hours)),"[",1)),
-                               NumberOfTornados = unlist(lapply(TimeOfDay_Mag4,nrow)),
-                               TotalFatalities  = unlist(lapply(split(T_data_Mag4$fat,as.factor(T_data_Mag4$hours)),sum,na.rm=TRUE)),
-                               AvMag            = unlist(lapply(split(T_data_Mag4$mag,as.factor(T_data_Mag4$hours)),mean,na.rm=TRUE)))
+plot(ByYearSummary$Year,
+     ByYearSummary$TotalFatalities,type="h")
+```
 
 
 
-TimeOfDaySummary_Mag4$AvFatPerTornado  <- TimeOfDaySummary_Mag4$TotalFatalities / TimeOfDaySummary_Mag4$NumberOfTornados
 
-plot(TimeOfDaySummary_Mag4$AvFatPerTornado ~  TimeOfDaySummary_Mag4$TimeOfDay,type="o")
+```{r}
+# The ~ means "is a function of" e.g. y variable goes first
 
+plot(TimeOfDaySummary$AvFatalities ~  TimeOfDaySummary$TimeOfDay,
+     ylab="Average number of fatalities in that hour slot",
+     xlab="Time of day",
+     type="o")
+```
+
+## Now let's split into different magnitudes
+
+### CHOOSE A MAGNITUDE
+
+```{r}
+#  YOU CHOOSE THE MAGNITUDE HERE
+
+magnitude <- 3
+
+# filter that mag
+T_data_Mag <- filter(T_data,mag==magnitude)
+
+# Split the data
+TimeOfDay_Mag <- split(T_data_Mag,as.factor(T_data_Mag$hours))
+
+# split by time of day as a summary table
+TimeOfDaySummary_Mag <- data.frame(TimeOfDay   = sapply(split(T_data_Mag$hours,as.factor(T_data_Mag$hours)),"[",1),
+                               NumberOfTornados = sapply(TimeOfDay_Mag,nrow),
+                               TotalFatalities  = sapply(split(T_data_Mag$fat,as.factor(T_data_Mag$hours)),sum,na.rm=TRUE),
+                               AvFatalities     = sapply(split(T_data_Mag$fat,as.factor(T_data_Mag$hours)),mean,na.rm=TRUE),
+                               AvMag            = sapply(split(T_data_Mag$mag,as.factor(T_data_Mag$hours)),mean,na.rm=TRUE))
+
+
+plot(TimeOfDaySummary_Mag$TotalFatalities ~  TimeOfDaySummary_Mag$TimeOfDay,
+     ylab=paste("Total fatalities at Mag",magnitude),type="o")
+
+plot(TimeOfDaySummary_Mag$AvFatalities ~  TimeOfDaySummary_Mag$TimeOfDay,
+     ylab=paste("Average fatalities at Mag",magnitude),type="o")
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 TO DO: Look at the existing papers on time of day, did they scale by per tornado?  or something else?
 
 Add in extra mags and have a look,
 Start playing with other columns or making regressions..  
 In words, now you have this, what's interesting, THINK SPATIALLY 
 Maybe do it as a powerpoint
-
-
-
-```{r}
-
-TimeOfDay <- split(T_data,as.factor(T_data$hours))
-
-
-
-```
 
 
 
@@ -351,12 +401,12 @@ https://hgreatrex.github.io/lab-7.html#tutorial-2-regression
 #x,y
 
 p <-  T_data %>%                  
-  ggplot( aes(mag,fat,col= datetime,label=om)) +
+  ggplot( aes(mag,fat,col= DecimalHour,label=om)) +
   geom_point() +
   theme_classic()+
   scale_color_gradient(low="blue", high="red")
 
-ggplotly(p)
+#ggplotly(p)
 ```
 
 
@@ -370,7 +420,6 @@ firstmodel
 ```
 
 fatalities = mag*0.73 - 0.9098
-
 
 ```{r}
 plot(T_data$fat ~ T_data$mag)
@@ -392,4 +441,15 @@ tm_shape(T_data, unit = "mi") +
   #         tm_borders()+
     tm_layout(legend.outside = TRUE) 
 ```
+
+
+#### spatial
+```{r}
+library(spData)
+data(us_states)
+data(us_states_df)
+```
+
+
+
 

@@ -1,0 +1,5 @@
+"0","```r
+#using the summary function again, we display all the data in the shapefile
+#now the date column is displaying calendar dates rather than a character
+#summary(T_data)
+```"

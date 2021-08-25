@@ -1,0 +1,5 @@
+"0","```r
+# the tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
+# ignore time for now
+plot(T_data$fat ~ T_data$mag,cex=.5)
+```"

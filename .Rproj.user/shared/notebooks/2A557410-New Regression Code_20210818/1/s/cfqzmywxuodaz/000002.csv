@@ -1,0 +1,5 @@
+"0","```r
+# we need to find the format
+# we look at the help file for strptime (this is not obvious)
+#?strptime
+```"

@@ -1,0 +1,9 @@
+"0","```r
+# Bin size control + color palette
+ggplot(T_data, aes(x=DecimalHour, y=mag) ) +
+  geom_bin2d(bins = 70) +
+  scale_fill_continuous(type = \"viridis\") +
+  theme_bw()
+```"
+"1","Warning: Removed 298 rows containing non-finite values (stat_bin2d).
+"

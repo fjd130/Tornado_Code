@@ -1,0 +1,12 @@
+"0","```r
+# columnn names, by the way, in a code chunk, the # means don't run this line
+
+# this command displays all of the field names within the shapefile we read in with the previous code chunk
+# the other way to think about it is that it's the column names in your spreadsheet.
+names(T_data)
+```"
+"1"," [1] \"om\"       \"yr\"       \"mo\"       \"dy\"       \"date\"     \"time\"     \"tz\"      
+ [8] \"st\"       \"stf\"      \"stn\"      \"mag\"      \"inj\"      \"fat\"      \"loss\"    
+[15] \"closs\"    \"slat\"     \"slon\"     \"elat\"     \"elon\"     \"len\"      \"wid\"     
+[22] \"fc\"       \"geometry\"
+"

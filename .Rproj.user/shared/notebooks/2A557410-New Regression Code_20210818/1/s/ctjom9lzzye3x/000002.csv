@@ -1,0 +1,21 @@
+"0","```r
+# load library
+# if a library doesn't exist, then to download, go to the packages menu (next to help) and click install
+
+# Upon downloading the .rmd file, I attempted to run this first code chunk and found that many of the libraries weren't installed.
+#I needed to install each library before downloading it via this code
+
+rm(list=ls())
+library(sp)
+library(sf)
+library(raster)
+library(tidycensus)
+library(tidyverse)
+library(plotly)
+library(olsrr)
+library(tmap)
+library(RColorBrewer)
+library(\"lubridate\")
+library(dplyr)
+library(tmap)
+```"

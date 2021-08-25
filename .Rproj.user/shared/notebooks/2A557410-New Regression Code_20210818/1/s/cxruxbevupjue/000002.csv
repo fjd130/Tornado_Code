@@ -1,0 +1,8 @@
+"0","```r
+
+#summary gives details of each column of data within the shapefile
+#some columns, date and time, are characters according to R
+#we will need to convert these to a readable number in order to work with them and performa analysis
+
+#summary(T_data)
+```"

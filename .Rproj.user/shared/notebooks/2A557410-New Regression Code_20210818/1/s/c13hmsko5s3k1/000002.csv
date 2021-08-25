@@ -1,0 +1,13 @@
+"0","```r
+TimeOfDay <- split(T_data,as.factor(T_data$hours))
+
+TimeOfDaySummary <- data.frame(TimeOfDay        = sapply(split(T_data$hours,as.factor(T_data$hours)),\"[\",1),
+                               NumberOfTornados = sapply(TimeOfDay,nrow),
+                               TotalFatalities  = sapply(split(T_data$fat,as.factor(T_data$hours)),sum,na.rm=TRUE),
+                               AvFatalities     = sapply(split(T_data$fat,as.factor(T_data$hours)),mean,na.rm=TRUE),
+                               AvMag            = sapply(split(T_data$mag,as.factor(T_data$hours)),mean,na.rm=TRUE))
+
+## In words, make a wish list of what you would like to see by hour
+
+TimeOfDaySummary
+```"

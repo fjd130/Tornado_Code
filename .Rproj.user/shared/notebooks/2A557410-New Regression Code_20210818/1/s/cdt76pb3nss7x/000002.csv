@@ -1,0 +1,22 @@
+"0","```r
+#  YOU CHOOSE THE MAGNITUDE HERE
+
+magnitude <- 3
+
+# filter that mag
+T_data_Mag <- filter(T_data,mag==magnitude)
+
+# Split the data
+TimeOfDay_Mag <- split(T_data_Mag,as.factor(T_data_Mag$hours))
+
+# split by time of day as a summary table
+TimeOfDaySummary_Mag <- data.frame(TimeOfDay   = sapply(split(T_data_Mag$hours,as.factor(T_data_Mag$hours)),\"[\",1),
+                               NumberOfTornados = sapply(TimeOfDay_Mag,nrow),
+                               TotalFatalities  = sapply(split(T_data_Mag$fat,as.factor(T_data_Mag$hours)),sum,na.rm=TRUE),
+                               AvFatalities     = sapply(split(T_data_Mag$fat,as.factor(T_data_Mag$hours)),mean,na.rm=TRUE),
+                               AvMag            = sapply(split(T_data_Mag$mag,as.factor(T_data_Mag$hours)),mean,na.rm=TRUE))
+
+
+plot(TimeOfDaySummary_Mag$TotalFatalities ~  TimeOfDaySummary_Mag$TimeOfDay,
+     ylab=paste(\"Total fatalities at Mag\",magnitude),type=\"o\")
+```"

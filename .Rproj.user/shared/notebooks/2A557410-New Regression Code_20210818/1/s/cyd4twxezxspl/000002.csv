@@ -1,0 +1,14 @@
+"0","```r
+#split by year
+ByYear <- split(T_data,as.factor(T_data$yr))
+
+ByYearSummary <- data.frame(Year        = sapply(split(T_data$yr,as.factor(T_data$yr)),\"[\",1),
+                               NumberOfTornados = sapply(ByYear,nrow),
+                               TotalFatalities  = sapply(split(T_data$fat,as.factor(T_data$yr)),sum,na.rm=TRUE),
+                               AvFatalities     = sapply(split(T_data$fat,as.factor(T_data$yr)),mean,na.rm=TRUE),
+                               AvMag            = sapply(split(T_data$mag,as.factor(T_data$yr)),mean,na.rm=TRUE))
+
+## In words, make a wish list of what you would like to see by hour
+
+ByYearSummary
+```"

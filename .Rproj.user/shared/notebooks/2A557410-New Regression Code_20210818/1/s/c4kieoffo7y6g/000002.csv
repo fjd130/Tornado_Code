@@ -1,0 +1,8 @@
+"0","```r
+# The ~ means \"is a function of\" e.g. y variable goes first
+
+plot(TimeOfDaySummary$AvFatalities ~  TimeOfDaySummary$TimeOfDay,
+     ylab=\"Average number of fatalities in that hour slot\",
+     xlab=\"Time of day\",
+     type=\"o\")
+```"

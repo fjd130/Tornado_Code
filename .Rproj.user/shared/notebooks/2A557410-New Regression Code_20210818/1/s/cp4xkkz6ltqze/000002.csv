@@ -1,0 +1,7 @@
+"0","```r
+# Bin size control + color palette
+ggplot(T_data, aes(x=DecimalHour, y=fat) ) +
+  geom_bin2d(bins = 70) +
+  scale_fill_continuous(type = \"viridis\") +
+  theme_bw()
+```"

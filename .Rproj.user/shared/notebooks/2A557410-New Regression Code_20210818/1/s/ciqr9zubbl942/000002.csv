@@ -1,0 +1,17 @@
+"0","```r
+# dot . means current folder - and you don't need a file extension
+
+# this code chunk uses \"st_read\" to read in the features from the initial tornado point shapefile
+# the table/spreadsheet of data is saved to a variable \"T_data\"
+T_data <- st_read(dsn=\"./1950-2019-torn-initpoint\",
+                  layer=\"1950-2019-torn-initpoint\")
+```"
+"1","Reading layer `1950-2019-torn-initpoint' from data source 
+  `/Users/hlg5155/Dropbox/Work/05 Supervision/PSU grad MGIS/2021 Frank/Frank project/1950-2019-torn-initpoint' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 65162 features and 22 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: -163.53 ymin: 17.7212 xmax: -64.7151 ymax: 61.02
+Geodetic CRS:  WGS 84
+"

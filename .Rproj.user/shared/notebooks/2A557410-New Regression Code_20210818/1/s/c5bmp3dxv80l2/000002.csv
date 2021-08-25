@@ -1,0 +1,14 @@
+"0","```r
+# The tilda ~ means y depends on x... so fatalities (y axis) depend on time (x-axis)
+# ignore time for now
+# plot(T_data$DecimalHour,T_data$mag,cex=.2)
+# ?par for more plotting parameters
+# https://www.r-graph-gallery.com/
+
+# Fancy GGversion of same plot
+# Bin size control + color palette
+ggplot(T_data, aes(x=DecimalHour, y=mag) ) +
+  geom_bin2d(bins = 70) +
+  scale_fill_continuous(type = \"viridis\") +
+  theme_bw()
+```"

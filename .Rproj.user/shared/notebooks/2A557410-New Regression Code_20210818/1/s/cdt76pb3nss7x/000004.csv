@@ -1,0 +1,6 @@
+"0","```r
+
+plot(TimeOfDaySummary_Mag$AvFatalities ~  TimeOfDaySummary_Mag$TimeOfDay,
+     ylab=paste(\"Average fatalities at Mag\",magnitude),type=\"o\")
+
+```"

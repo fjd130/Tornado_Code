@@ -1,0 +1,5 @@
+"0","```r
+
+# mag < 0 has been set to missing
+T_data$mag[T_data$mag < 0 ] <- NA
+```"

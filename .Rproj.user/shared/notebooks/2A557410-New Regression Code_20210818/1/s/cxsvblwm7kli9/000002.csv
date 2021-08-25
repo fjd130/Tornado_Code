@@ -1,0 +1,8 @@
+"0","```r
+# make the date
+# set the values in the date column to the variable \"T_data$date\"
+# as.Date command converts the character data in the column to represent calendar dates
+# calendar date is in the format year, month, date
+
+T_data$date <- as.Date(T_data$date, format=\"%Y-%m-%d\")
+```"

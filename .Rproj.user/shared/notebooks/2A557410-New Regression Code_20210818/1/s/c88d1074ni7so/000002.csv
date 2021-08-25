@@ -1,0 +1,33 @@
+"0","```r
+## OLD BUT USEFUL CODE
+
+#using the summary function again, we display all the data in the shapefile
+#now we see our new column \"datetime\"
+#however, this is a character again
+#we will need to convert this into something meaningful to analyze
+
+#summary(T_data)
+
+# I need to extract the hours and minutes from the $datetime column
+#I found the code below which I think will help to get to the point where I will have the time value needed
+#However, I am unsure how to match up what I see in the code below to our data
+
+#I ran the code and it produces results but again, my confusion lies in how to translate the example code into something that works with #our data
+
+#Time <- factor(\"08:01:01\")
+
+# parese date
+#a <- hms(as.character(Time))
+
+# get hours
+#hour(a)
+
+# get minutes
+#minute(a)
+
+# so overall - nice work
+#a <- hms(T_data$time)
+#T_data$hour <- hour(a)
+#T_data$minutes <- minute(a)
+
+```"

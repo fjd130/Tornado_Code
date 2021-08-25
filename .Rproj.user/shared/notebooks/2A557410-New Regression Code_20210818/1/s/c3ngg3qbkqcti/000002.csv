@@ -1,0 +1,9 @@
+"0","```r
+# print the 1st 6  values
+#the head command displays the first six values from the selected column
+#in this case we see the first 6 dates in the \"date\" columns
+#R is interpreting these as characters, rather than a date
+#we will need to convert them into something that R understands is a date
+
+#head(T_data$date)
+```"

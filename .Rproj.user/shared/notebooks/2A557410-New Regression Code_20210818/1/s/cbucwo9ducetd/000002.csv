@@ -1,0 +1,11 @@
+"0","```r
+summary(ByYearSummary)
+```"
+"1","      Year      NumberOfTornados TotalFatalities   AvFatalities          AvMag       
+ Min.   :1950   Min.   : 201.0   Min.   : 10.00   Min.   :0.008881   Min.   :0.4210  
+ 1st Qu.:1967   1st Qu.: 687.2   1st Qu.: 36.00   1st Qu.:0.035456   1st Qu.:0.5563  
+ Median :1984   Median : 906.5   Median : 54.50   Median :0.064530   Median :0.7960  
+ Mean   :1984   Mean   : 930.9   Mean   : 84.74   Mean   :0.117349   Mean   :0.8739  
+ 3rd Qu.:2002   3rd Qu.:1144.2   3rd Qu.: 83.25   3rd Qu.:0.110982   3rd Qu.:1.1534  
+ Max.   :2019   Max.   :1817.0   Max.   :553.00   Max.   :1.242280   Max.   :1.6917  
+"
